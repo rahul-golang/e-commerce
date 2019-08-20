@@ -1,0 +1,4 @@
+package: gokit/ecommerse
+import:
+- package: github.com/go-kit/kit
+  version: v0.8.0

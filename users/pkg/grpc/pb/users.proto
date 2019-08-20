@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package pb;
+
+
+
+//The Users service definition.
+service Users {
+ rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+ rpc GetAllUser (GetAllUserRequest) returns (GetAllUserReply);
+ rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
+ rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
+ rpc GetUser    (GetUserRequest   ) returns (GetUserReply   );
+}
+
+
+
+message  User {
+    string ID=1;
+    string   FirstName=2;
+    string   LastName=3;  
+    string   AccountNumber=4 ;
+    string   UserEmail     =5;
+    string   UserMobile    = 6;
+    string   UserPhone     = 7;
+    string   Username      = 8;
+    string   RoleID        = 9;
+    string   Password      = 10;
+    string   AdminApproval = 11;
+
+}
+
+message CreateUserRequest {
+    User user=1;
+}
+
+message CreateUserReply {
+    string  Message =1;
+    User    user= 2;
+}
+
+message GetAllUserRequest {
+}
+
+message GetAllUserReply {
+    string  Message =1;
+    repeated User   user= 2;
+}
+
+message UpdateUserRequest {
+    User user=1;
+}
+
+message UpdateUserReply {
+    string  Message =1;
+    User    user= 2;
+}
+
+message DeleteUserRequest {
+    string ID=1;
+}
+
+message DeleteUserReply {
+    string  Message =1;
+string ID=2;
+
+}
+
+message GetUserRequest {
+    string ID=1;
+}
+
+message GetUserReply {
+    string  Message =1;
+    User    user= 2;
+}
+
+
+
+
+
+
+
+
+

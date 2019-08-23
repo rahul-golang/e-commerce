@@ -41,7 +41,7 @@ func main() {
 	// Explicitly set our tracer to be the default tracer.
 	opentracing.InitGlobalTracer(tracer)
 
-	conn, err := grpc.Dial("localhost:8082", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:8801", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("Error in Dial(): gRPC connection : ", err)
 	}
@@ -53,7 +53,7 @@ func main() {
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 
 	resp, err := client.GetUser(ctx, &pb.GetUserRequest{
-		ID: "10",
+		ID: "1",
 	})
 
 	if err != nil {

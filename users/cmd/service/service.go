@@ -34,7 +34,7 @@ var fs = flag.NewFlagSet("users", flag.ExitOnError)
 var debugAddr = fs.String("debug.addr", ":8080", "Debug and metrics listen address")
 var httpAddr = fs.String("http-addr", ":8081", "HTTP listen address")
 var grpcAddr = fs.String("grpc-addr", ":8082", "gRPC listen address")
-var zipkinURL = fs.String("zipkin-url", "http://localhost:9411/api/v1/spans", "Enable Zipkin tracing via a collector URL e.g. http://localhost:9411/api/v1/spans")
+var zipkinURL = fs.String("zipkin-url", "http://zipkin:9411/api/v1/spans", "Enable Zipkin tracing via a collector URL e.g. http://localhost:9411/api/v1/spans")
 
 func Run() {
 	fs.Parse(os.Args[1:])

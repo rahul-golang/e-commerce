@@ -32,7 +32,7 @@ func NewUserRepository(mysqlInterface database.MysqlInterface) UserRepositoryInt
 func (userRepository *UserRepository) Create(ctx context.Context, user models.User) (*models.User, error) {
 
 	dbConn := userRepository.mysqlInterface.NewClientConnection()
-
+	defer dbConn.Close()
 	dbConn.AutoMigrate(&models.User{})
 	createOn := time.Now().In(time.UTC)
 
@@ -53,6 +53,7 @@ func (userRepository *UserRepository) Create(ctx context.Context, user models.Us
 func (userRepository *UserRepository) Get(ctx context.Context, id string) (*models.User, error) {
 
 	dbConn := userRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 	fmt.Println("id", id)
 	user := models.User{}
 	err := dbConn.Where("id=?", id).First(&user).Error
@@ -64,6 +65,7 @@ func (userRepository *UserRepository) Get(ctx context.Context, id string) (*mode
 
 func (userRepository *UserRepository) Delete(ctx context.Context, id string) (*models.DeleteUserResp, error) {
 	dbConn := userRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 
 	err := dbConn.Where("id=?", id).Delete(&models.User{}).Error
 	if err != nil {
@@ -77,6 +79,7 @@ func (userRepository *UserRepository) Delete(ctx context.Context, id string) (*m
 func (userRepository *UserRepository) Update(ctx context.Context, user models.User) (*models.User, error) {
 
 	dbConn := userRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 	err := dbConn.Model(&models.User{}).Where("id=?", user.ID).Update(&user).Error
 	if err != nil {
 		return nil, err
@@ -88,6 +91,7 @@ func (userRepository *UserRepository) Update(ctx context.Context, user models.Us
 func (userRepository *UserRepository) All(ctx context.Context) (getAllResp []*models.User, err error) {
 
 	dbConn := userRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 
 	//users := make([]*models.User, 0)
 	fmt.Println("")

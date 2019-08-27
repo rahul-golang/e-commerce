@@ -10,22 +10,24 @@ import (
 // meant to be used as a helper struct, to collect all of the endpoints into a
 // single parameter.
 type Endpoints struct {
-	CreateProductEndpoint endpoint.Endpoint
-	GetAllProductEndpoint endpoint.Endpoint
-	UpdateProductEndpoint endpoint.Endpoint
-	DeleteProductEndpoint endpoint.Endpoint
-	GetProductEndpoint    endpoint.Endpoint
+	CreateProductEndpoint      endpoint.Endpoint
+	GetAllProductEndpoint      endpoint.Endpoint
+	UpdateProductEndpoint      endpoint.Endpoint
+	DeleteProductEndpoint      endpoint.Endpoint
+	GetProductEndpoint         endpoint.Endpoint
+	UpdateProductStockEndpoint endpoint.Endpoint
 }
 
 // New returns a Endpoints struct that wraps the provided service, and wires in all of the
 // expected endpoint middlewares
 func New(s service.ProductsService, mdw map[string][]endpoint.Middleware) Endpoints {
 	eps := Endpoints{
-		CreateProductEndpoint: MakeCreateProductEndpoint(s),
-		DeleteProductEndpoint: MakeDeleteProductEndpoint(s),
-		GetAllProductEndpoint: MakeGetAllProductEndpoint(s),
-		GetProductEndpoint:    MakeGetProductEndpoint(s),
-		UpdateProductEndpoint: MakeUpdateProductEndpoint(s),
+		CreateProductEndpoint:      MakeCreateProductEndpoint(s),
+		DeleteProductEndpoint:      MakeDeleteProductEndpoint(s),
+		GetAllProductEndpoint:      MakeGetAllProductEndpoint(s),
+		GetProductEndpoint:         MakeGetProductEndpoint(s),
+		UpdateProductEndpoint:      MakeUpdateProductEndpoint(s),
+		UpdateProductStockEndpoint: MakeUpdateProductStockEndpoint(s),
 	}
 	for _, m := range mdw["CreateProduct"] {
 		eps.CreateProductEndpoint = m(eps.CreateProductEndpoint)
@@ -41,6 +43,9 @@ func New(s service.ProductsService, mdw map[string][]endpoint.Middleware) Endpoi
 	}
 	for _, m := range mdw["GetProduct"] {
 		eps.GetProductEndpoint = m(eps.GetProductEndpoint)
+	}
+	for _, m := range mdw["UpdateProductStock"] {
+		eps.UpdateProductStockEndpoint = m(eps.UpdateProductStockEndpoint)
 	}
 	return eps
 }

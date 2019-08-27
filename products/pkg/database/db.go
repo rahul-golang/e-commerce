@@ -52,7 +52,7 @@ func NewDBConnection() func() *gorm.DB {
 		err1 := conn.DB().Ping()
 		if err1 != nil {
 			//fmt.Println("Error", err1)
-			conn, err = gorm.Open("mysql", "root:root@tcp(127.0.0.1:3306)/ecommerce?charset=utf8&parseTime=True&loc=Local")
+			conn, err = gorm.Open("mysql", "root:root@tcp(db)/ecommerce?charset=utf8&parseTime=True&loc=Local")
 			if err != nil {
 				panic("connot establish connections")
 			}

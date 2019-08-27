@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+
+
+//The Orders service definition.
+service Orders {
+ rpc CreateOrder (CreateOrderRequest) returns (CreateOrderReply);
+}
+
+message Order {
+    uint64     OrdersID                  = 1;          
+	int64      TotalTax                  = 2;      
+	uint64     CustomersID               = 3;  
+    string     CustomersName             = 4;
+    string     CustomersCompany          = 5;
+    string     CustomersStreetAddress    = 6;
+	string     CustomersSuburb           = 7;
+	string     CustomersCity             = 8;
+	string     CustomersPostCode         = 9;
+	string     CustomersState            = 10;
+	string     CustomersCountry          = 11;
+	string     CustomersTelephone        = 12;
+	string     Email                     = 13;
+	string     CustomersAddressFormatID  = 14;
+	string     DeliveryName              = 15;
+	string     DeliveryCompany           = 16;
+	string     DeliveryStreetAddress     = 17;
+	string     DeliverySuburb            = 18;
+	string     DeliveryCity              = 19;
+	string     DeliveryPostcode          = 20;
+	string     DeliveryState             = 21;
+	string     DeliveryCountry           = 22;
+	uint64     DeliveryAddressFormatID   = 23;
+	string     BillingName               = 24;
+	string     BillingCompany            = 25;
+	string     BillingStreetAddress      = 26;
+	string     BillingSuburb             = 27;
+	string     BillingCity               = 28;
+	string     BillingPostCode           = 29;
+	string     BillingState              = 30;
+	string     BillingCountry            = 31;
+	uint64     BillingAddresFormatID     = 32;
+	string     PaymentMethod             = 33;
+	string     CcType                    = 34;
+    string     CcOwner                   = 35;
+	string     CcNumber                  = 36;
+	string     CcExpires                 = 37;
+	google.protobuf.Timestamp  LastModified               = 38;
+	google.protobuf.Timestamp DatePurchased              = 39;
+	google.protobuf.Timestamp OrdersDateFinished         = 40;
+	string     Currency                  = 41;
+	float    CurrencyValue             = 42;
+	float    OrderPrice                = 43;
+    float    ShippingCost              = 44;
+	string     ShippingMethod            = 45;
+	google.protobuf.Timestamp ShippingDuration           = 46;
+	string     OrderInformation          = 47;
+	bool       IsSeen                    = 48;
+	string     CouponCode                = 49;
+	float    CouponAmount              = 50;
+	uint64     ExcludePoductIDs          = 51;
+	string     ProductCategories         = 52;
+	string     ExcludedProductCategories = 53;
+	bool       FreeShipping              = 54;
+	uint64     ProductIDS                = 55;
+	string     OrderedSource             = 56;
+	string     DeliveryPhone             = 57;
+	string     BillingPhone              = 58;
+	string     TransactionID             = 59;
+}
+
+message CreateOrderRequest {
+    Order  order = 1;
+
+}
+
+message CreateOrderReply {
+    Order order = 1;
+    string message = 2;
+    
+}
+

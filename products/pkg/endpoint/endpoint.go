@@ -201,3 +201,41 @@ func (e Endpoints) GetProduct(ctx context.Context, id string) (createResp *model
 	}
 	return response.(GetProductResponse).CreateResp, response.(GetProductResponse).Err
 }
+
+// UpdateProductStockRequest collects the request parameters for the UpdateProductStock method.
+type UpdateProductStockRequest struct {
+	UpdateStockReq models.UpdateStockReq `json:"update_stock_req"`
+}
+
+// UpdateProductStockResponse collects the response parameters for the UpdateProductStock method.
+type UpdateProductStockResponse struct {
+	UpdateStockResp *models.UpdateStockResp `json:"update_stock_resp"`
+	Err             error                   `json:"err"`
+}
+
+// MakeUpdateProductStockEndpoint returns an endpoint that invokes UpdateProductStock on the service.
+func MakeUpdateProductStockEndpoint(s service.ProductsService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*UpdateProductStockRequest)
+		updateStockResp, err := s.UpdateProductStock(ctx, req.UpdateStockReq)
+		return UpdateProductStockResponse{
+			Err:             err,
+			UpdateStockResp: updateStockResp,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r UpdateProductStockResponse) Failed() error {
+	return r.Err
+}
+
+// UpdateProductStock implements Service. Primarily useful in a client.
+func (e Endpoints) UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (updateStockResp *models.UpdateStockResp, err error) {
+	request := UpdateProductStockRequest{UpdateStockReq: updateStockReq}
+	response, err := e.UpdateProductStockEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(UpdateProductStockResponse).UpdateStockResp, response.(UpdateProductStockResponse).Err
+}

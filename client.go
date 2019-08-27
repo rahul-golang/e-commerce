@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"gokit/ecommerse/users/pkg/grpc/pb"
+	productsPb "gokit/ecommerse/products/pkg/grpc/pb"
 	"os"
 
 	opentracing "github.com/opentracing/opentracing-go"
@@ -41,32 +41,49 @@ func main() {
 	// Explicitly set our tracer to be the default tracer.
 	opentracing.InitGlobalTracer(tracer)
 
-	conn, err := grpc.Dial("localhost:8801", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:8805", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("Error in Dial(): gRPC connection : ", err)
 	}
 
-	client := pb.NewUsersClient(conn)
+	// client := pb.NewUsersClient(conn)
+
+	// span := opentracing.StartSpan("Run")
+
+	// ctx := opentracing.ContextWithSpan(context.Background(), span)
+
+	// resp, err := client.GetUser(ctx, &pb.GetUserRequest{
+	// 	ID: "1",
+	// })
+
+	// if err != nil {
+	// 	fmt.Println("Error in Calling server Method : ", err)
+	// }
+	// fmt.Println("Responce from server ", resp)
+
+	// resp1, err := client.GetAllUser(ctx, &pb.GetAllUserRequest{})
+
+	// if err != nil {
+	// 	fmt.Println("Error in Calling server Method : ", err)
+	// }
+	// fmt.Println("Responce from server ", resp1)
+
+	client := productsPb.NewProductsClient(conn)
 
 	span := opentracing.StartSpan("Run")
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 
-	resp, err := client.GetUser(ctx, &pb.GetUserRequest{
-		ID: "1",
+	resp, err := client.UpdateProductStock(ctx, &productsPb.UpdateProductStockRequest{
+		ProductID:   1,
+		AddStock:    0,
+		RemoveStock: 1,
 	})
 
 	if err != nil {
 		fmt.Println("Error in Calling server Method : ", err)
 	}
 	fmt.Println("Responce from server ", resp)
-
-	resp1, err := client.GetAllUser(ctx, &pb.GetAllUserRequest{})
-
-	if err != nil {
-		fmt.Println("Error in Calling server Method : ", err)
-	}
-	fmt.Println("Responce from server ", resp1)
 
 	// Finish our CLI span
 	span.Finish()

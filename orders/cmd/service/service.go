@@ -3,13 +3,14 @@ package service
 import (
 	"flag"
 	"fmt"
-	"gokit/ecommerse/products/pkg/database"
-	endpoint "gokit/ecommerse/products/pkg/endpoint"
-	grpc "gokit/ecommerse/products/pkg/grpc"
-	pb "gokit/ecommerse/products/pkg/grpc/pb"
-	http "gokit/ecommerse/products/pkg/http"
-	"gokit/ecommerse/products/pkg/repository"
-	service "gokit/ecommerse/products/pkg/service"
+	"gokit/ecommerse/orders/pkg/database"
+	endpoint "gokit/ecommerse/orders/pkg/endpoint"
+	grpc "gokit/ecommerse/orders/pkg/grpc"
+	pb "gokit/ecommerse/orders/pkg/grpc/pb"
+	http "gokit/ecommerse/orders/pkg/http"
+	"gokit/ecommerse/orders/pkg/repository"
+	service "gokit/ecommerse/orders/pkg/service"
+	"gokit/ecommerse/orders/pkg/service_clients"
 	"net"
 	http1 "net/http"
 	"os"
@@ -28,10 +29,11 @@ import (
 var tracer opentracinggo.Tracer
 var logger log.Logger
 
-var fs = flag.NewFlagSet("products", flag.ExitOnError)
+var fs = flag.NewFlagSet("orders", flag.ExitOnError)
 var debugAddr = fs.String("debug.addr", ":8080", "Debug and metrics listen address")
 var httpAddr = fs.String("http-addr", ":8081", "HTTP listen address")
 var grpcAddr = fs.String("grpc-addr", ":8082", "gRPC listen address")
+var thriftAddr = fs.String("thrift-addr", ":8083", "Thrift listen address")
 var zipkinURL = fs.String("zipkin-url", "", "Enable Zipkin tracing via a collector URL e.g. http://localhost:9411/api/v1/spans")
 
 func Run() {
@@ -49,21 +51,21 @@ func Run() {
 			os.Exit(1)
 		}
 		defer collector.Close()
-		recorder := zipkingoopentracing.NewRecorder(collector, false, "localhost:80", "products")
+		recorder := zipkingoopentracing.NewRecorder(collector, false, "localhost:80", "orders")
 		tracer, err = zipkingoopentracing.NewTracer(recorder)
 		if err != nil {
 			logger.Log("err", err)
 			os.Exit(1)
 		}
-
 	} else {
 		logger.Log("tracer", "none")
 		tracer = opentracinggo.GlobalTracer()
 	}
+	dataStoreInterface := database.NewMysql()
+	clientConn := service_clients.NewClientConn()
+	orderRepositoryInterface := repository.NewOrderRepository(dataStoreInterface, clientConn)
 
-	mysqlInterface := database.NewMysql()
-	repoInterface := repository.NewProductRepository(mysqlInterface)
-	svc := service.New(getServiceMiddleware(logger), repoInterface)
+	svc := service.New(getServiceMiddleware(logger), orderRepositoryInterface)
 	eps := endpoint.New(svc, getEndpointMiddleware(logger))
 	g := createService(eps)
 	initMetricsEndpoint(g)
@@ -137,7 +139,7 @@ func initGRPCHandler(endpoints endpoint.Endpoints, g *group.Group) {
 	g.Add(func() error {
 		logger.Log("transport", "gRPC", "addr", *grpcAddr)
 		baseServer := grpc1.NewServer()
-		pb.RegisterProductsServer(baseServer, grpcServer)
+		pb.RegisterOrdersServer(baseServer, grpcServer)
 		return baseServer.Serve(grpcListener)
 	}, func(error) {
 		grpcListener.Close()

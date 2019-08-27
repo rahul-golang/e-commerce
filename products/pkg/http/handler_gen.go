@@ -17,5 +17,6 @@ func NewHTTPHandler(endpoints endpoint.Endpoints, options map[string][]http.Serv
 	makeUpdateProductHandler(m, endpoints, options["UpdateProduct"])
 	makeDeleteProductHandler(m, endpoints, options["DeleteProduct"])
 	makeGetProductHandler(m, endpoints, options["GetProduct"])
+	makeUpdateProductStockHandler(m, endpoints, options["UpdateProductStock"])
 	return m
 }

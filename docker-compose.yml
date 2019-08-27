@@ -103,6 +103,7 @@ services:
     container_name: products
     ports:
     - 8802:8081
+    - 8805:8082
     restart: always
     volumes:
     - .:/go/src/gokit/ecommerse
@@ -117,6 +118,19 @@ services:
     ports:
     - 8800:8081
     - 8801:8082
+    restart: always
+    volumes:
+    - .:/go/src/gokit/ecommerse
+  orders:
+    depends_on:
+      - db
+      - zipkin
+    build:
+      context: .
+      dockerfile: orders/Dockerfile
+    container_name: orders
+    ports:
+    - 8804:8081
     restart: always
     volumes:
     - .:/go/src/gokit/ecommerse

@@ -51,3 +51,10 @@ func (l loggingMiddleware) GetProduct(ctx context.Context, id string) (createRes
 	}()
 	return l.next.GetProduct(ctx, id)
 }
+
+func (l loggingMiddleware) UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (updateStockResp *models.UpdateStockResp, err error) {
+	defer func() {
+		l.logger.Log("method", "UpdateProductStock", "updateStockReq", updateStockReq, "updateStockResp", updateStockResp, "err", err)
+	}()
+	return l.next.UpdateProductStock(ctx, updateStockReq)
+}

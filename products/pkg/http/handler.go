@@ -159,3 +159,28 @@ func err2code(err error) int {
 type errorWrapper struct {
 	Error string `json:"error"`
 }
+
+// makeUpdateProductStockHandler creates the handler logic
+func makeUpdateProductStockHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("PUT").Path("/products/stock").Handler(handlers.CORS(handlers.AllowedMethods([]string{"PUT"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.UpdateProductStockEndpoint, decodeUpdateProductStockRequest, encodeUpdateProductStockResponse, options...)))
+}
+
+// decodeUpdateProductStockRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeUpdateProductStockRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.UpdateProductStockRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeUpdateProductStockResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeUpdateProductStockResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}

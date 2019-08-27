@@ -7,6 +7,8 @@ import (
 	"gokit/ecommerse/products/pkg/models"
 
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 //ProductRepositoryInterface implimets all methods in ProductRepository
@@ -16,6 +18,7 @@ type ProductRepositoryInterface interface {
 	Delete(ctx context.Context, id string) (deleteResp *models.DeleteProductResp, err error)
 	Update(ctx context.Context, updateReq models.Product) (updateResp *models.Product, err error)
 	All(ctx context.Context) (getAllResp []*models.Product, err error)
+	UpdateProductStock(context.Context, models.UpdateStockReq) (*models.UpdateStockResp, error)
 }
 
 // ProductRepository **
@@ -32,6 +35,7 @@ func NewProductRepository(mysqlInterface database.MysqlInterface) ProductReposit
 func (productRepository *ProductRepository) Create(ctx context.Context, product models.Product) (*models.Product, error) {
 
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 
 	dbConn.AutoMigrate(&models.Product{})
 	createOn := time.Now().In(time.UTC)
@@ -53,6 +57,7 @@ func (productRepository *ProductRepository) Create(ctx context.Context, product 
 func (productRepository *ProductRepository) Get(ctx context.Context, id string) (*models.Product, error) {
 
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 	fmt.Println("id", id)
 	product := models.Product{}
 	err := dbConn.Where("id=?", id).First(&product).Error
@@ -64,6 +69,7 @@ func (productRepository *ProductRepository) Get(ctx context.Context, id string) 
 
 func (productRepository *ProductRepository) Delete(ctx context.Context, id string) (*models.DeleteProductResp, error) {
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 
 	err := dbConn.Where("id=?", id).Delete(&models.Product{}).Error
 	if err != nil {
@@ -77,6 +83,7 @@ func (productRepository *ProductRepository) Delete(ctx context.Context, id strin
 func (productRepository *ProductRepository) Update(ctx context.Context, product models.Product) (*models.Product, error) {
 
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 	fmt.Println(product)
 	err := dbConn.Model(&models.Product{}).Where("id=?", product.ID).Update(&product).Error
 	if err != nil {
@@ -89,6 +96,7 @@ func (productRepository *ProductRepository) Update(ctx context.Context, product 
 func (productRepository *ProductRepository) All(ctx context.Context) (getAllResp []*models.Product, err error) {
 
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
 
 	//products := make([]*models.Product, 0)
 	fmt.Println("")
@@ -100,4 +108,30 @@ func (productRepository *ProductRepository) All(ctx context.Context) (getAllResp
 		return nil, err
 	}
 	return products, nil
+}
+
+//UpdateProductStock UPDATES Products Stock
+func (productRepository *ProductRepository) UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (*models.UpdateStockResp, error) {
+
+	products := models.Product{}
+	products.ID = uint(updateStockReq.ProductID)
+	dbConn := productRepository.mysqlInterface.NewClientConnection()
+	defer dbConn.Close()
+
+	if updateStockReq.RemoveStock != 0 {
+		err := dbConn.Model(&products).Where("!products_quantity < ?", updateStockReq.RemoveStock).Update("products_quantity", gorm.Expr("products_quantity - ?", updateStockReq.RemoveStock)).Error
+		if err != nil {
+			return nil, err
+		}
+	} else {
+
+		err := dbConn.Model(&products).Where("id = ?", updateStockReq.ProductID).Update("products_quantity", gorm.Expr("products_quantity + ?", updateStockReq.AddStock)).Error
+		if err != nil {
+			return nil, err
+		}
+
+	}
+	return &models.UpdateStockResp{
+		Message: "Updated Successfully",
+	}, nil
 }

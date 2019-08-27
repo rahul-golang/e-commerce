@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package pb;
+
+
+
+//The Products service definition.
+service Products {
+ rpc CreateProduct      (CreateProductRequest     ) returns (CreateProductReply     );
+ rpc GetAllProduct      (GetAllProductRequest     ) returns (GetAllProductReply     );
+ rpc UpdateProduct      (UpdateProductRequest     ) returns (UpdateProductReply     );
+ rpc DeleteProduct      (DeleteProductRequest     ) returns (DeleteProductReply     );
+ rpc GetProduct         (GetProductRequest        ) returns (GetProductReply        );
+ rpc UpdateProductStock (UpdateProductStockRequest) returns (UpdateProductStockReply);
+}
+
+message CreateProductRequest {}
+
+message CreateProductReply {}
+
+message GetAllProductRequest {}
+
+message GetAllProductReply {}
+
+message UpdateProductRequest {}
+
+message UpdateProductReply {}
+
+message DeleteProductRequest {}
+
+message DeleteProductReply {}
+
+message GetProductRequest {}
+
+message GetProductReply {}
+
+message UpdateProductStockRequest {
+   uint64 AddStock    = 1;
+   uint64 RemoveStock =2; 
+   uint64 ProductID   = 3;
+    
+}
+
+message UpdateProductStockReply {
+    string message =1;
+    
+}
+

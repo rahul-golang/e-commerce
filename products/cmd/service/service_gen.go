@@ -4,43 +4,45 @@ package service
 import (
 	endpoint1 "github.com/go-kit/kit/endpoint"
 	log "github.com/go-kit/kit/log"
-	prometheus "github.com/go-kit/kit/metrics/prometheus"
 	opentracing "github.com/go-kit/kit/tracing/opentracing"
+	grpc "github.com/go-kit/kit/transport/grpc"
 	http "github.com/go-kit/kit/transport/http"
 	group "github.com/oklog/oklog/pkg/group"
 	opentracinggo "github.com/opentracing/opentracing-go"
 	endpoint "gokit/ecommerse/products/pkg/endpoint"
 	http1 "gokit/ecommerse/products/pkg/http"
-	service "gokit/ecommerse/products/pkg/service"
 )
 
 func createService(endpoints endpoint.Endpoints) (g *group.Group) {
 	g = &group.Group{}
 	initHttpHandler(endpoints, g)
+	initGRPCHandler(endpoints, g)
 	return g
 }
 func defaultHttpOptions(logger log.Logger, tracer opentracinggo.Tracer) map[string][]http.ServerOption {
 	options := map[string][]http.ServerOption{
-		"CreateProduct": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "CreateProduct", logger))},
-		"DeleteProduct": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "DeleteProduct", logger))},
-		"GetAllProduct": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetAllProduct", logger))},
-		"GetProduct":    {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetProduct", logger))},
-		"UpdateProduct": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "UpdateProduct", logger))},
+		"CreateProduct":      {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "CreateProduct", logger))},
+		"DeleteProduct":      {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "DeleteProduct", logger))},
+		"GetAllProduct":      {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetAllProduct", logger))},
+		"GetProduct":         {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetProduct", logger))},
+		"UpdateProduct":      {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "UpdateProduct", logger))},
+		"UpdateProductStock": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "UpdateProductStock", logger))},
 	}
 	return options
 }
-func addDefaultEndpointMiddleware(logger log.Logger, duration *prometheus.Summary, mw map[string][]endpoint1.Middleware) {
-	mw["CreateProduct"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "CreateProduct")), endpoint.InstrumentingMiddleware(duration.With("method", "CreateProduct"))}
-	mw["GetAllProduct"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "GetAllProduct")), endpoint.InstrumentingMiddleware(duration.With("method", "GetAllProduct"))}
-	mw["UpdateProduct"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "UpdateProduct")), endpoint.InstrumentingMiddleware(duration.With("method", "UpdateProduct"))}
-	mw["DeleteProduct"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "DeleteProduct")), endpoint.InstrumentingMiddleware(duration.With("method", "DeleteProduct"))}
-	mw["GetProduct"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "GetProduct")), endpoint.InstrumentingMiddleware(duration.With("method", "GetProduct"))}
-}
-func addDefaultServiceMiddleware(logger log.Logger, mw []service.Middleware) []service.Middleware {
-	return append(mw, service.LoggingMiddleware(logger))
+func defaultGRPCOptions(logger log.Logger, tracer opentracinggo.Tracer) map[string][]grpc.ServerOption {
+	options := map[string][]grpc.ServerOption{
+		"CreateProduct":      {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "CreateProduct", logger))},
+		"DeleteProduct":      {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "DeleteProduct", logger))},
+		"GetAllProduct":      {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "GetAllProduct", logger))},
+		"GetProduct":         {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "GetProduct", logger))},
+		"UpdateProduct":      {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "UpdateProduct", logger))},
+		"UpdateProductStock": {grpc.ServerErrorLogger(logger), grpc.ServerBefore(opentracing.GRPCToContext(tracer, "UpdateProductStock", logger))},
+	}
+	return options
 }
 func addEndpointMiddlewareToAllMethods(mw map[string][]endpoint1.Middleware, m endpoint1.Middleware) {
-	methods := []string{"CreateProduct", "GetAllProduct", "UpdateProduct", "DeleteProduct", "GetProduct"}
+	methods := []string{"CreateProduct", "GetAllProduct", "UpdateProduct", "DeleteProduct", "GetProduct", "UpdateProductStock"}
 	for _, v := range methods {
 		mw[v] = append(mw[v], m)
 	}

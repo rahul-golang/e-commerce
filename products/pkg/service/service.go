@@ -14,6 +14,7 @@ type ProductsService interface {
 	UpdateProduct(ctx context.Context, upadteReq models.Product) (updateResp *models.Product, err error)
 	DeleteProduct(ctx context.Context, id string) (deleteResp *models.DeleteProductResp, err error)
 	GetProduct(ctx context.Context, id string) (createResp *models.Product, err error)
+	UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (updateStockResp *models.UpdateStockResp, err error)
 }
 
 type basicProductsService struct {
@@ -80,4 +81,11 @@ func New(middleware []Middleware, productRepository repository.ProductRepository
 		svc = m(svc)
 	}
 	return svc
+}
+
+func (b *basicProductsService) UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (updateStockResp *models.UpdateStockResp, err error) {
+
+	updateStockResp, err = b.productRepository.UpdateProductStock(ctx, updateStockReq)
+
+	return
 }

@@ -20,8 +20,8 @@ func NewClientConn() ProductClientConn {
 
 }
 
-func (clients *Clients) GetProductsClient() pb.ProductsClient {
-	conn, err := grpc.Dial("localhost:8805", grpc.WithInsecure())
+func (clients Clients) GetProductsClient() pb.ProductsClient {
+	conn, err := grpc.Dial("172.18.0.8:8082", grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("Failed to start gRPC connection: %v", err)
 	}

@@ -43,8 +43,17 @@ func (orderRepository *OrderRepository) CreateOrders(ctx context.Context, order 
 		return nil, d.Error
 	}
 	productClient := orderRepository.clientConn.GetProductsClient()
+
+	// conn, err := grpc.Dial("localhost:8805", grpc.WithInsecure())
+	// if err != nil {
+	// 	fmt.Println("Error in Dial(): gRPC connection : ", err)
+	// }
+
+	//productClient := pb.NewProductsClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	resp, err := productClient.UpdateProductStock(
-		context.Background(),
+		ctx,
 		&pb.UpdateProductStockRequest{
 			AddStock:    0,
 			RemoveStock: 1,

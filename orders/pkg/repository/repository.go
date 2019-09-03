@@ -8,6 +8,8 @@ import (
 	"gokit/ecommerse/orders/pkg/service_clients"
 	"gokit/ecommerse/products/pkg/grpc/pb"
 
+	"github.com/mitchellh/mapstructure"
+
 	"time"
 )
 
@@ -38,6 +40,7 @@ func (orderRepository *OrderRepository) CreateOrders(ctx context.Context, order 
 	order.LastModified = now
 	order.OrdersDateFinished = now
 	order.ShippingDuration = now
+	fmt.Println(order)
 	d := dbConn.Create(&order)
 	if d.Error != nil {
 		return nil, d.Error
@@ -52,12 +55,17 @@ func (orderRepository *OrderRepository) CreateOrders(ctx context.Context, order 
 	//productClient := pb.NewProductsClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	pbStock := []*pb.ProductStock{}
+	mapstructure.Decode(order.OrderProducts, &pbStock)
+
+	//pbStock := pb.ProductStock{}
 	resp, err := productClient.UpdateProductStock(
 		ctx,
 		&pb.UpdateProductStockRequest{
-			AddStock:    0,
-			RemoveStock: 1,
-			ProductID:   1,
+			AddStock:     false,
+			RemoveStock:  true,
+			ProductStock: pbStock,
 		})
 	if err != nil {
 		fmt.Println(err)

@@ -1,5 +1,5 @@
 hash: 51f29ff68ee8da1ed3095de4d9cf0d004e825f6bdb03d5e39cb8fc3580030c9e
-updated: 2019-08-12T13:15:45.704753322+05:30
+updated: 2019-08-29T12:33:02.082069691+05:30
 imports:
 - name: github.com/apache/thrift
   version: 74d6d9d3d6400d1672f48b4acf5bc7d1260ad96d
@@ -23,6 +23,8 @@ imports:
   version: 776d5712da21bc4762676d614db1d8a64f4238b0
 - name: github.com/eapache/queue
   version: 093482f3f8ce946c05bcba64badd2c82369e084d
+- name: github.com/go-gormigrate/gormigrate
+  version: 25ab005cd0817dbd6296268d570a2b1acdd22f32
 - name: github.com/go-kit/kit
   version: 12210fb6ace19e0496167bb3e667dcd91fa9f69b
   subpackages:

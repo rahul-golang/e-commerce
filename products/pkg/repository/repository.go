@@ -114,20 +114,46 @@ func (productRepository *ProductRepository) All(ctx context.Context) (getAllResp
 func (productRepository *ProductRepository) UpdateProductStock(ctx context.Context, updateStockReq models.UpdateStockReq) (*models.UpdateStockResp, error) {
 
 	products := models.Product{}
-	products.ID = uint(updateStockReq.ProductID)
+
+	fmt.Println(updateStockReq)
 	dbConn := productRepository.mysqlInterface.NewClientConnection()
 	defer dbConn.Close()
 
-	if updateStockReq.RemoveStock != 0 {
-		err := dbConn.Model(&products).Where("!products_quantity < ?", updateStockReq.RemoveStock).Update("products_quantity", gorm.Expr("products_quantity - ?", updateStockReq.RemoveStock)).Error
-		if err != nil {
-			return nil, err
-		}
-	} else {
+	if updateStockReq.RemoveStock {
 
-		err := dbConn.Model(&products).Where("id = ?", updateStockReq.ProductID).Update("products_quantity", gorm.Expr("products_quantity + ?", updateStockReq.AddStock)).Error
-		if err != nil {
-			return nil, err
+		// begin a transaction
+		tx := dbConn.Begin()
+
+		for _, product := range updateStockReq.Products {
+
+			products.ID = uint(product.ProductID)
+
+			fmt.Println(product)
+
+			err := tx.Model(&products).Where("!products_quantity < ?", product.ProductsQuantity).Update("products_quantity", gorm.Expr("products_quantity - ?", product.ProductsQuantity)).Error
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+		}
+
+		tx.Commit()
+
+	} else {
+		// begin a transaction
+		tx := dbConn.Begin()
+
+		for _, product := range updateStockReq.Products {
+
+			products.ID = uint(product.ProductID)
+
+			//tx.Update("products_quantity", gorm.Expr("products_quantity - ?", updateStockReq.RemoveStock)).Where("!products_quantity < ?", updateStockReq.Products.ID)
+
+			err := tx.Model(&products).Where("!products_quantity < ?", product.ProductsQuantity).Update("products_quantity", gorm.Expr("products_quantity - ?", product.ProductsQuantity)).Error
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 
 	}

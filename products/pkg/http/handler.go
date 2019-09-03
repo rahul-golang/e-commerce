@@ -170,7 +170,7 @@ func makeUpdateProductStockHandler(m *mux.Router, endpoints endpoint.Endpoints, 
 func decodeUpdateProductStockRequest(_ context.Context, r *http1.Request) (interface{}, error) {
 	req := endpoint.UpdateProductStockRequest{}
 	err := json.NewDecoder(r.Body).Decode(&req)
-	return req, err
+	return &req, err
 }
 
 // encodeUpdateProductStockResponse is a transport/http.EncodeResponseFunc that encodes

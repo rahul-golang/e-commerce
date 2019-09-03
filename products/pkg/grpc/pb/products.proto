@@ -35,14 +35,19 @@ message GetProductRequest {}
 message GetProductReply {}
 
 message UpdateProductStockRequest {
-   uint64 AddStock    = 1;
-   uint64 RemoveStock =2; 
-   uint64 ProductID   = 3;
+   bool AddStock    = 1;
+   bool RemoveStock =2; 
+   repeated ProductStock ProductStock   = 3;
     
 }
 
 message UpdateProductStockReply {
     string message =1;
     
+}
+
+message ProductStock  {
+	uint64 ProductID         = 1;
+	uint64 ProductsQuantity = 2;
 }
 

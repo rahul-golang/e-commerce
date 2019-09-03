@@ -5,9 +5,9 @@ import (
 	"errors"
 	endpoint "gokit/ecommerse/products/pkg/endpoint"
 	pb "gokit/ecommerse/products/pkg/grpc/pb"
-	"gokit/ecommerse/products/pkg/models"
 
 	grpc "github.com/go-kit/kit/transport/grpc"
+	"github.com/mitchellh/mapstructure"
 	context1 "golang.org/x/net/context"
 )
 
@@ -125,13 +125,8 @@ func makeGetProductHandler(endpoints endpoint.Endpoints, options []grpc.ServerOp
 
 func decodeGetProductRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(pb.UpdateProductStockRequest)
-	endpointReq := endpoint.UpdateProductStockRequest{
-		UpdateStockReq: models.UpdateStockReq{
-			AddStock:    req.AddStock,
-			ProductID:   req.ProductID,
-			RemoveStock: req.RemoveStock,
-		},
-	}
+	endpointReq := endpoint.UpdateProductStockRequest{}
+	mapstructure.Decode(req, &endpointReq)
 
 	return &endpointReq, nil
 }
@@ -166,9 +161,9 @@ func decodeUpdateProductStockRequest(_ context.Context, r interface{}) (interfac
 
 	req := r.(*pb.UpdateProductStockRequest)
 	endpointReq := endpoint.UpdateProductStockRequest{}
-	endpointReq.UpdateStockReq.AddStock = req.AddStock
-	endpointReq.UpdateStockReq.RemoveStock = req.RemoveStock
-	endpointReq.UpdateStockReq.ProductID = req.ProductID
+
+	mapstructure.Decode(req, &endpointReq)
+
 	return &endpointReq, nil
 }
 
